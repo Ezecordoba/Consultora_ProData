@@ -17,13 +17,13 @@ modelo_P_h.compile(optimizer='adam', loss='mean_squared_error', metrics=['accura
 modelo_P_C = load_model('Modelo_P_C.h5')
 modelo_P_C.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy', 'mse'])
 
-modelo_xgb = joblib.load("./modelo_xgb_1.pkl")
+modelo_xgb = joblib.load("modelo_xgb_1.pkl")
 
 # Cargar los datos
 metadatos1 = pd.read_csv('metadatos_ML.csv')
 atributos = pd.read_csv('atributos.csv')
 categorias = pd.read_csv('categorias.csv')
-ciudad_categoria = pd.read_csv("./ciudad_categoria_procesado.csv")
+ciudad_categoria = pd.read_csv("ciudad_categoria_procesado.csv")
 
 # Limpiar los datos
 metadatos1.drop(columns=['name', 'street_address', 'postal_code', 'review_count', 'is_open'], inplace=True)
