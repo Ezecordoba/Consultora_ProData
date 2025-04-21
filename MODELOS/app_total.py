@@ -155,10 +155,10 @@ def pagina_prediccion_caracteristicas():
 
 # --- NAVEGACIÓN ENTRE PÁGINAS ---
 st.sidebar.title("📂 Navegación")
-pagina = st.sidebar.radio("Selecciona una página", (
+pagina = st.sidebar.radio("Selecciona un modelo", (
     "Categorías recomendadas por ciudad",
-    "Ciudades recomendadas por categoría",
-    "Predicción por características del negocio"
+    "Ciudades y atributos recomendados por categoría",
+    "Predicción de éxito por atributos"
 ))
 
 if pagina == "Categorías recomendadas por ciudad":
