@@ -16,7 +16,11 @@ import io
 MODEL_URLS = {
     "Modelo_P_h.h5": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/Modelo_P_h.h5",
     "Modelo_P_C.h5": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/Modelo_P_C.h5",
-    "modelo_xgb_1.pkl": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/modelo_xgb_1.pkl"
+    "modelo_xgb_1.pkl": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/modelo_xgb_1.pkl",
+    "metadatos_ML.csv": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/metadatos_ML.csv",
+    "atributos.csv": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/atributos.csv",
+    "categorias.csv": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/categorias.csv",
+    "ciudad_categoria_procesado.csv": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/ciudad_categoria_procesado.csv"
 }
 
 # Función para descargar si no existe
