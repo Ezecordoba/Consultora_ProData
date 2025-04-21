@@ -14,9 +14,9 @@ import io
 
 # URLs de GitHub
 MODEL_URLS = {
-    "Modelo_P_h.h5": "https://raw.githubusercontent.com/Ezecordoba/Consultora_ProData/main/MODELOS/Modelo_P_h.h5",
-    "Modelo_P_C.h5": "https://raw.githubusercontent.com/Ezecordoba/Consultora_ProData/main/MODELOS/Modelo_P_C.h5",
-    "modelo_xgb_1.pkl": "https://raw.githubusercontent.com/Ezecordoba/Consultora_ProData/main/MODELOS/modelo_xgb_1.pkl"
+    "Modelo_P_h.h5": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/Modelo_P_h.h5",
+    "Modelo_P_C.h5": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/Modelo_P_C.h5",
+    "modelo_xgb_1.pkl": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/modelo_xgb_1.pkl"
 }
 
 # Función para descargar si no existe
