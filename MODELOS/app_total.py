@@ -6,6 +6,9 @@ import streamlit as st
 from sklearn.preprocessing import MinMaxScaler
 import folium
 from streamlit.components.v1 import html  # Importar el componente HTML de Streamlit
+import joblib
+from xgboost import XGBClassifier
+import io
 
 # Cargar los modelos
 modelo_P_h = load_model('Modelo_P_h.h5')
@@ -14,13 +17,17 @@ modelo_P_h.compile(optimizer='adam', loss='mean_squared_error', metrics=['accura
 modelo_P_C = load_model('Modelo_P_C.h5')
 modelo_P_C.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy', 'mse'])
 
+modelo_xgb = joblib.load("./modelo_xgb_1.pkl")
+
 # Cargar los datos
 metadatos1 = pd.read_csv('metadatos_ML.csv')
 atributos = pd.read_csv('atributos.csv')
 categorias = pd.read_csv('categorias.csv')
+ciudad_categoria = pd.read_csv("./ciudad_categoria_procesado.csv")
 
 # Limpiar los datos
 metadatos1.drop(columns=['name', 'street_address', 'postal_code', 'review_count', 'is_open'], inplace=True)
+
 
 def atributos_destacados(df, atributos):
     '''Devuelve los atributos que más se repiten ordenados de mayor a menor '''
@@ -32,6 +39,23 @@ def atributos_destacados(df, atributos):
     frecuencia_atributos = pd.Series(todos_los_atributos).value_counts()
     atributos_ordenados = frecuencia_atributos.index.tolist()
     return atributos_ordenados
+
+def predecir_categoria_recomendada(ciudad, df, modelo):
+    df_ciudad = df[df["city"] == ciudad][["city", "category", "competencia", "avg_rating", "avg_vader_score", "avg_textblob_score", "poblacion"]]
+
+    if df_ciudad.empty:
+        return f"No hay datos disponibles para la ciudad: {ciudad}"
+
+    # Seleccionar solo las columnas relevantes
+    X_nueva_ciudad = df_ciudad[["competencia", "avg_rating", "avg_vader_score", "avg_textblob_score", "poblacion"]]
+
+    # Hacer predicciones
+    df_ciudad["recomendado"] = modelo.predict(X_nueva_ciudad)
+
+    # Filtrar solo las categorías recomendadas
+    categorias_recomendadas = df_ciudad[df_ciudad["recomendado"] == 1]["category"]
+
+    return categorias_recomendadas
 
 # Crear la interfaz de usuario con Streamlit
 st.title("Sistema de Recomendación por Categoría de Restaurantes")
@@ -113,3 +137,22 @@ if categoria:
 
     except Exception as e:
         st.error(f"Error: {str(e)}")
+
+
+st.title("🛍️ Recomendador de Categorías por ciudad")
+
+# Input del usuario para ingresar la ciudad
+ciudad_usuario = st.text_input("Ingresa la ciudad:")
+
+if st.button("Predecir"):
+    if ciudad_usuario:
+        categorias1 = predecir_categoria_recomendada(ciudad_usuario, ciudad_categoria, modelo_xgb)
+
+        if isinstance(categorias1, str):
+            st.warning(categorias1)  # Si no hay datos, mostrar mensaje de advertencia
+        else:
+            st.success(f"Categorías recomendadas para {ciudad_usuario}:")
+            st.write(categorias1.to_frame().reset_index(drop=True))  # Mostrar en formato tabular
+    else:
+        st.error("Por favor, ingresa una ciudad.")
+
