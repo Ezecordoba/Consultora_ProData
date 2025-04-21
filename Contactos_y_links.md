@@ -36,4 +36,5 @@
 - **Móvil:** +1 (678) 847-3460
 
 ---
-
+### **APP en Streamlit**
+URL: [https://consultora-pro-data-app.streamlit.app/](https://consultora-pro-data-app.streamlit.app/)
