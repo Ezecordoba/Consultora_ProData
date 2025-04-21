@@ -2,53 +2,55 @@ import pandas as pd
 import numpy as np 
 import ast
 import os
-import subprocess
+import requests
 import streamlit as st
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 import folium
 from streamlit.components.v1 import html
 import joblib
-from xgboost import XGBClassifier
 import io
 
-# URLs de GitHub
-MODEL_URLS = {
-    "Modelo_P_h.h5": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/Modelo_P_h.h5",
-    "Modelo_P_C.h5": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/Modelo_P_C.h5",
-    "modelo_xgb_1.pkl": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/modelo_xgb_1.pkl",
-    "metadatos_ML.csv": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/metadatos_ML.csv",
-    "atributos.csv": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/atributos.csv",
-    "categorias.csv": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/categorias.csv",
-    "ciudad_categoria_procesado.csv": "https://github.com/Ezecordoba/Consultora_ProData/blob/main/MODELOS/ciudad_categoria_procesado.csv"
+# URLs de GitHub sin LFS
+ARCHIVOS = {
+    "Modelo_P_h.h5": "https://github.com/Ezecordoba/Consultora_ProData/raw/main/MODELOS/Modelo_P_h.h5",
+    "Modelo_P_C.h5": "https://github.com/Ezecordoba/Consultora_ProData/raw/main/MODELOS/Modelo_P_C.h5",
+    "modelo_xgb_1.pkl": "https://github.com/Ezecordoba/Consultora_ProData/raw/main/MODELOS/modelo_xgb_1.pkl",
+    "metadatos_ML.csv": "https://github.com/Ezecordoba/Consultora_ProData/raw/main/MODELOS/metadatos_ML.csv",
+    "atributos.csv": "https://github.com/Ezecordoba/Consultora_ProData/raw/main/MODELOS/atributos.csv",
+    "categorias.csv": "https://github.com/Ezecordoba/Consultora_ProData/raw/main/MODELOS/categorias.csv",
+    "ciudad_categoria_procesado.csv": "https://github.com/Ezecordoba/Consultora_ProData/raw/main/MODELOS/ciudad_categoria_procesado.csv"
 }
 
-# Función para descargar si no existe
-def descargar_si_no_existe(nombre_archivo, url):
-    if not os.path.isfile(nombre_archivo):
-        try:
-            subprocess.run(['curl', '-L', '-o', nombre_archivo, url], check=True)
-        except Exception as e:
-            st.error(f"No se pudo descargar {nombre_archivo}: {e}")
+def descargar_archivo(nombre, url, binario=False):
+    if not os.path.isfile(nombre):
+        r = requests.get(url)
+        if r.status_code == 200:
+            mode = "wb" if binario else "w"
+            with open(nombre, mode) as f:
+                f.write(r.content if binario else r.text)
+        else:
+            st.error(f"No se pudo descargar {nombre}")
 
-# Descargar modelos si no están
-for archivo, url in MODEL_URLS.items():
-    descargar_si_no_existe(archivo, url)
+# Descargar modelos (binarios)
+descargar_archivo("Modelo_P_h.h5", ARCHIVOS["Modelo_P_h.h5"], binario=True)
+descargar_archivo("Modelo_P_C.h5", ARCHIVOS["Modelo_P_C.h5"], binario=True)
+descargar_archivo("modelo_xgb_1.pkl", ARCHIVOS["modelo_xgb_1.pkl"], binario=True)
 
-# Cargar los modelos
-modelo_P_h = load_model('Modelo_P_h.h5')
-modelo_P_h.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy', 'mse'])
-
-modelo_P_C = load_model('Modelo_P_C.h5')
-modelo_P_C.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy', 'mse'])
-
+# Cargar modelos
+modelo_P_h = load_model("Modelo_P_h.h5")
+modelo_P_C = load_model("Modelo_P_C.h5")
 modelo_xgb = joblib.load("modelo_xgb_1.pkl")
 
-# Cargar los datos
-metadatos1 = pd.read_csv('metadatos_ML.csv')
-atributos = pd.read_csv('atributos.csv')
-categorias = pd.read_csv('categorias.csv')
-ciudad_categoria = pd.read_csv("ciudad_categoria_procesado.csv")
+# Descargar y cargar CSVs directamente
+def cargar_csv_desde_url(url):
+    r = requests.get(url)
+    return pd.read_csv(io.BytesIO(r.content))
+
+metadatos1 = cargar_csv_desde_url(ARCHIVOS["metadatos_ML.csv"])
+atributos = cargar_csv_desde_url(ARCHIVOS["atributos.csv"])
+categorias = cargar_csv_desde_url(ARCHIVOS["categorias.csv"])
+ciudad_categoria = cargar_csv_desde_url(ARCHIVOS["ciudad_categoria_procesado.csv"])
 
 # Limpiar los datos
 metadatos1.drop(columns=['name', 'street_address', 'postal_code', 'review_count', 'is_open'], inplace=True)
