@@ -60,8 +60,30 @@ def atributos_destacados(df, atributos):
     frecuencia_atributos = pd.Series(todos_los_atributos).value_counts()
     return frecuencia_atributos.index.tolist()
 
+def pagina_recomendar_categoria():
+    st.title("🏙️ Recomendación de categorías por ciudad")
+    ciudad_usuario = st.text_input("Ingresa la ciudad:")
+    if st.button("Predecir"):
+        if ciudad_usuario:
+            df_ciudad = ciudad_categoria[ciudad_categoria["city"] == ciudad_usuario][[
+                "city", "category", "competencia", "avg_rating", "avg_vader_score", "avg_textblob_score", "poblacion"
+            ]]
+            if df_ciudad.empty:
+                st.warning(f"No hay datos disponibles para la ciudad: {ciudad_usuario}")
+                return
+            X = df_ciudad[["competencia", "avg_rating", "avg_vader_score", "avg_textblob_score", "poblacion"]]
+            df_ciudad["recomendado"] = modelo_xgb.predict(X)
+            recomendadas = df_ciudad[df_ciudad["recomendado"] == 1]["category"]
+            if recomendadas.empty:
+                st.info("No hay categorías recomendadas.")
+            else:
+                st.success("Categorías recomendadas:")
+                st.write(recomendadas.to_frame().reset_index(drop=True))
+        else:
+            st.error("Por favor, ingresa una ciudad.")
+
 def pagina_recomendar_ciudades():
-    st.title("🌍 Recomendación de ciudades por categoría de restaurante")
+    st.title("🌍 Recomendación de ciudades y atributos por categoría de restaurante")
     categoria = st.selectbox('Selecciona una categoría:', [''] + categorias['category'].tolist())
     if categoria:
         try:
@@ -101,32 +123,10 @@ def pagina_recomendar_ciudades():
         except Exception as e:
             st.error(f"Ocurrió un error: {str(e)}")
 
-def pagina_recomendar_categoria():
-    st.title("🏙️ Recomendación de categorías por ciudad")
-    ciudad_usuario = st.text_input("Ingresa la ciudad:")
-    if st.button("Predecir"):
-        if ciudad_usuario:
-            df_ciudad = ciudad_categoria[ciudad_categoria["city"] == ciudad_usuario][[
-                "city", "category", "competencia", "avg_rating", "avg_vader_score", "avg_textblob_score", "poblacion"
-            ]]
-            if df_ciudad.empty:
-                st.warning(f"No hay datos disponibles para la ciudad: {ciudad_usuario}")
-                return
-            X = df_ciudad[["competencia", "avg_rating", "avg_vader_score", "avg_textblob_score", "poblacion"]]
-            df_ciudad["recomendado"] = modelo_xgb.predict(X)
-            recomendadas = df_ciudad[df_ciudad["recomendado"] == 1]["category"]
-            if recomendadas.empty:
-                st.info("No hay categorías recomendadas.")
-            else:
-                st.success("Categorías recomendadas:")
-                st.write(recomendadas.to_frame().reset_index(drop=True))
-        else:
-            st.error("Por favor, ingresa una ciudad.")
-
 def pagina_prediccion_caracteristicas():
-    st.title("🏪 Predicción por características del negocio")
-    st.subheader("Modelo de Selección de Características")
-    st.write("Elegí las opciones que querés ofrecer en tu negocio. El modelo predecirá si tendrá éxito.")
+    st.title("🏪 Predicción de éxito por atributos")
+    st.subheader("Modelo de selección de atributos")
+    st.write("Elegí las opciones que quieres ofrecer en tu negocio. El modelo predecirá si tendrá éxito.")
     caracteristicas_esp = [
         'delivery', 'para llevar', 'comer en el local', 'asientos al aire libre', 'autoservicio', 'bueno para trabajar con laptop',
         'cenas en solitario', 'accesible para sillas de ruedas', 'bebidas alcohólicas', 'comida saludable', 'comida rápida confort',
@@ -156,16 +156,16 @@ def pagina_prediccion_caracteristicas():
 # --- NAVEGACIÓN ENTRE PÁGINAS ---
 st.sidebar.title("📂 Navegación")
 pagina = st.sidebar.radio("Selecciona una página", (
-    "Ciudades recomendadas por categoría",
     "Categorías recomendadas por ciudad",
+    "Ciudades recomendadas por categoría",
     "Predicción por características del negocio"
 ))
 
-if pagina == "Ciudades recomendadas por categoría":
-    pagina_recomendar_ciudades()
-elif pagina == "Categorías recomendadas por ciudad":
+if pagina == "Categorías recomendadas por ciudad":
     pagina_recomendar_categoria()
-elif pagina == "Predicción por características del negocio":
+elif pagina == "Ciudades y atributos recomendados por categoría":
+    pagina_recomendar_ciudades()
+elif pagina == "Predicción de éxito por atributos":
     pagina_prediccion_caracteristicas()
 
 
