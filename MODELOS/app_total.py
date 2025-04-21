@@ -1,14 +1,35 @@
 import pandas as pd
 import numpy as np 
 import ast
-from tensorflow.keras.models import load_model
+import os
+import subprocess
 import streamlit as st
+from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 import folium
-from streamlit.components.v1 import html  # Importar el componente HTML de Streamlit
+from streamlit.components.v1 import html
 import joblib
 from xgboost import XGBClassifier
 import io
+
+# URLs de GitHub
+MODEL_URLS = {
+    "Modelo_P_h.h5": "https://raw.githubusercontent.com/Ezecordoba/Consultora_ProData/main/MODELOS/Modelo_P_h.h5",
+    "Modelo_P_C.h5": "https://raw.githubusercontent.com/Ezecordoba/Consultora_ProData/main/MODELOS/Modelo_P_C.h5",
+    "modelo_xgb_1.pkl": "https://raw.githubusercontent.com/Ezecordoba/Consultora_ProData/main/MODELOS/modelo_xgb_1.pkl"
+}
+
+# Función para descargar si no existe
+def descargar_si_no_existe(nombre_archivo, url):
+    if not os.path.isfile(nombre_archivo):
+        try:
+            subprocess.run(['curl', '-L', '-o', nombre_archivo, url], check=True)
+        except Exception as e:
+            st.error(f"No se pudo descargar {nombre_archivo}: {e}")
+
+# Descargar modelos si no están
+for archivo, url in MODEL_URLS.items():
+    descargar_si_no_existe(archivo, url)
 
 # Cargar los modelos
 modelo_P_h = load_model('Modelo_P_h.h5')
