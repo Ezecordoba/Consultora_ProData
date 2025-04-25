@@ -30,7 +30,7 @@
 
 ---
 
-### **_Argenis Alexis_**
+### **_Argenis Alexis Bolivar_**
 - **LinkedIn:** [https://www.linkedin.com/in/argenis-bolivar-aa315743/](https://www.linkedin.com/in/argenis-bolivar-aa315743/)
 - **GitHub:** [https://github.com/Argeboliv05](https://github.com/Argeboliv05)
 - **Móvil:** +1 (678) 847-3460
